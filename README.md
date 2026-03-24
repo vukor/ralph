@@ -38,33 +38,79 @@ Skills are automatically invoked when you ask Claude to:
 - "convert this prd", "turn into ralph format", "create prd.json"
 
 ### 2. Install script and prompt
+
 Symlink ralph into a shared scripts directory so it's available from any project:
 
 ```bash
 # Create the scripts directory
 mkdir -p -m 700 ~/_scripts
 
-# Symlink ralph files
+# Symlink ralph files (run from the ralph repo root)
 ln -s $(pwd)/CLAUDE.md ~/_scripts/CLAUDE.md
 ln -s $(pwd)/AGENTS.md ~/_scripts/AGENTS.md
 ln -s $(pwd)/ralph.sh ~/_scripts/ralph.sh
 ```
 
-Then add `~/_scripts` to your PATH.
+### 3. Add `~/_scripts` to your PATH
 
-**zsh / bash** - add to `~/.zshrc` or `~/.bashrc`:
+Choose the section that matches your shell. If you're unsure, run `echo $SHELL` to check.
 
-```bash
-export PATH="$PATH:$HOME/_scripts/"
-```
+<details>
+<summary><strong>fish</strong></summary>
 
-**fish** - add to `~/.config/fish/config.fish`:
+Add this line to `~/.config/fish/config.fish`:
 
 ```fish
 set -gx PATH $HOME/_scripts $PATH
 ```
 
-After reloading your shell you can run `ralph.sh` from any project directory.
+Then reload:
+
+```fish
+source ~/.config/fish/config.fish
+```
+
+</details>
+
+<details>
+<summary><strong>zsh</strong></summary>
+
+Add this line to `~/.zshrc`:
+
+```bash
+export PATH="$PATH:$HOME/_scripts/"
+```
+
+Then reload:
+
+```bash
+source ~/.zshrc
+```
+
+</details>
+
+<details>
+<summary><strong>bash</strong></summary>
+
+Add this line to `~/.bashrc` (or `~/.bash_profile` on macOS if not using zsh):
+
+```bash
+export PATH="$PATH:$HOME/_scripts/"
+```
+
+Then reload:
+
+```bash
+source ~/.bashrc
+```
+
+</details>
+
+Verify it works by running from any directory:
+
+```bash
+which ralph.sh
+```
 
 ## Workflow
 
