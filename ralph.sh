@@ -29,8 +29,8 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Validate tool choice
-if [[ "$TOOL" != "claude" && "$TOOL" != "opencode" ]]; then
-  echo "Error: Invalid tool '$TOOL'. Must be 'claude' or 'opencode'."
+if [[ "$TOOL" != "opencode" && "$TOOL" != "claude" ]]; then
+  echo "Error: Invalid tool '$TOOL'. Must be 'opencode' or 'claude'."
   exit 1
 fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -89,7 +89,7 @@ for i in $(seq 1 $MAX_ITERATIONS); do
 
   # Run the selected tool with the ralph prompt
   if [[ "$TOOL" == "opencode" ]]; then
-    OUTPUT=$(OPENCODE_PERMISSION='{"*":"allow"}' opencode run "Read AGENTS.md and prd.json and complete the next user story" 2>&1 | tee /dev/stderr) || true
+    OUTPUT=$(OPENCODE_PERMISSION='{"*":"allow"}' opencode run -f "$SCRIPT_DIR/AGENTS.md" "Complete the next user story" 2>&1 | tee /dev/stderr) || true
   else
     # Claude Code: use --dangerously-skip-permissions for autonomous operation, --print for output
     OUTPUT=$(claude --dangerously-skip-permissions --print < "$SCRIPT_DIR/CLAUDE.md" 2>&1 | tee /dev/stderr) || true

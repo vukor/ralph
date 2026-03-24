@@ -4,6 +4,8 @@
 
 Ralph is an autonomous AI agent loop that runs AI coding tools ([opencode](https://opencode.ai) or [Claude Code](https://docs.anthropic.com/en/docs/claude-code)) repeatedly until all PRD items are complete. Each iteration is a fresh instance with clean context. Memory persists via git history, `progress.txt`, and `prd.json`.
 
+> **Note:** This is a forked repository from [snarktank/ralph](https://github.com/snarktank/ralph).
+
 Based on [Geoffrey Huntley's Ralph pattern](https://ghuntley.com/ralph/).
 
 [Read my in-depth article on how I use Ralph](https://x.com/ryancarson/status/2008548371712135632)
@@ -120,8 +122,8 @@ Ralph will:
 | `prd.json` | User stories with `passes` status (the task list) |
 | `prd.json.example` | Example PRD format for reference |
 | `progress.txt` | Append-only learnings for future iterations |
-| `skills/prd/` | Skill for generating PRDs (works with Claude Code) |
-| `skills/ralph/` | Skill for converting PRDs to JSON (works with Claude Code) |
+| `skills/prd/` | Skill for generating PRDs (works with Opencode and Claude Code) |
+| `skills/ralph/` | Skill for converting PRDs to JSON (works with Opencode and Claude Code) |
 | `.claude-plugin/` | Plugin manifest for Claude Code marketplace discovery |
 | `flowchart/` | Interactive visualization of how Ralph works |
 
