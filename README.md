@@ -2,7 +2,9 @@
 
 ![Ralph](ralph.webp)
 
-Ralph is an autonomous AI agent loop that runs AI coding tools ([Amp](https://ampcode.com) or [Claude Code](https://docs.anthropic.com/en/docs/claude-code)) repeatedly until all PRD items are complete. Each iteration is a fresh instance with clean context. Memory persists via git history, `progress.txt`, and `prd.json`.
+Ralph is an autonomous AI agent loop that runs AI coding tools ([opencode](https://opencode.ai) or [Claude Code](https://docs.anthropic.com/en/docs/claude-code)) repeatedly until all PRD items are complete. Each iteration is a fresh instance with clean context. Memory persists via git history, `progress.txt`, and `prd.json`.
+
+> **Note:** This is a forked repository from [snarktank/ralph](https://github.com/snarktank/ralph).
 
 Based on [Geoffrey Huntley's Ralph pattern](https://ghuntley.com/ralph/).
 
@@ -11,58 +13,20 @@ Based on [Geoffrey Huntley's Ralph pattern](https://ghuntley.com/ralph/).
 ## Prerequisites
 
 - One of the following AI coding tools installed and authenticated:
-  - [Amp CLI](https://ampcode.com) (default)
+  - [opencode](https://opencode.ai) (default)
   - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) (`npm install -g @anthropic-ai/claude-code`)
 - `jq` installed (`brew install jq` on macOS)
 - A git repository for your project
 
 ## Setup
 
-### Option 1: Copy to your project
+### 1. Install skills
 
-Copy the ralph files into your project:
+Copy the skills to your Claude config for use across all projects:
 
-```bash
-# From your project root
-mkdir -p scripts/ralph
-cp /path/to/ralph/ralph.sh scripts/ralph/
-
-# Copy the prompt template for your AI tool of choice:
-cp /path/to/ralph/prompt.md scripts/ralph/prompt.md    # For Amp
-# OR
-cp /path/to/ralph/CLAUDE.md scripts/ralph/CLAUDE.md    # For Claude Code
-
-chmod +x scripts/ralph/ralph.sh
-```
-
-### Option 2: Install skills globally (Amp)
-
-Copy the skills to your Amp or Claude config for use across all projects:
-
-For AMP
-```bash
-cp -r skills/prd ~/.config/amp/skills/
-cp -r skills/ralph ~/.config/amp/skills/
-```
-
-For Claude Code (manual)
 ```bash
 cp -r skills/prd ~/.claude/skills/
 cp -r skills/ralph ~/.claude/skills/
-```
-
-### Option 3: Use as Claude Code Marketplace
-
-Add the Ralph marketplace to Claude Code:
-
-```bash
-/plugin marketplace add snarktank/ralph
-```
-
-Then install the skills:
-
-```bash
-/plugin install ralph-skills@ralph-marketplace
 ```
 
 Available skills after installation:
@@ -73,17 +37,80 @@ Skills are automatically invoked when you ask Claude to:
 - "create a prd", "write prd for", "plan this feature"
 - "convert this prd", "turn into ralph format", "create prd.json"
 
-### Configure Amp auto-handoff (recommended)
+### 2. Install script and prompt
 
-Add to `~/.config/amp/settings.json`:
+Symlink ralph into a shared scripts directory so it's available from any project:
 
-```json
-{
-  "amp.experimental.autoHandoff": { "context": 90 }
-}
+```bash
+# Create the scripts directory
+mkdir -p -m 700 ~/_scripts
+
+# Symlink ralph files (run from the ralph repo root)
+ln -s $(pwd)/CLAUDE.md ~/_scripts/CLAUDE.md
+ln -s $(pwd)/AGENTS.md ~/_scripts/AGENTS.md
+ln -s $(pwd)/ralph.sh ~/_scripts/ralph.sh
 ```
 
-This enables automatic handoff when context fills up, allowing Ralph to handle large stories that exceed a single context window.
+### 3. Add `~/_scripts` to your PATH
+
+Choose the section that matches your shell. If you're unsure, run `echo $SHELL` to check.
+
+<details>
+<summary><strong>fish</strong></summary>
+
+Add this line to `~/.config/fish/config.fish`:
+
+```fish
+set -gx PATH $HOME/_scripts $PATH
+```
+
+Then reload:
+
+```fish
+source ~/.config/fish/config.fish
+```
+
+</details>
+
+<details>
+<summary><strong>zsh</strong></summary>
+
+Add this line to `~/.zshrc`:
+
+```bash
+export PATH="$PATH:$HOME/_scripts/"
+```
+
+Then reload:
+
+```bash
+source ~/.zshrc
+```
+
+</details>
+
+<details>
+<summary><strong>bash</strong></summary>
+
+Add this line to `~/.bashrc` (or `~/.bash_profile` on macOS if not using zsh):
+
+```bash
+export PATH="$PATH:$HOME/_scripts/"
+```
+
+Then reload:
+
+```bash
+source ~/.bashrc
+```
+
+</details>
+
+Verify it works by running from any directory:
+
+```bash
+which ralph.sh
+```
 
 ## Workflow
 
@@ -110,14 +137,21 @@ This creates `prd.json` with user stories structured for autonomous execution.
 ### 3. Run Ralph
 
 ```bash
-# Using Amp (default)
-./scripts/ralph/ralph.sh [max_iterations]
+# Using opencode (default)
+ralph.sh [max_iterations]
 
 # Using Claude Code
-./scripts/ralph/ralph.sh --tool claude [max_iterations]
+ralph.sh --tool claude [max_iterations]
+
+# With a specific model (opencode uses provider/model format)
+ralph.sh --model "llm-router/claude-sonnet-4-6" [max_iterations]
+ralph.sh --model "llm-router/claude-opus-4-6" [max_iterations]
+
+# With a specific model (Claude Code uses model name)
+ralph.sh --tool claude --model "claude-sonnet-4-6" [max_iterations]
 ```
 
-Default is 10 iterations. Use `--tool amp` or `--tool claude` to select your AI coding tool.
+Default is 10 iterations. Use `--tool opencode` or `--tool claude` to select your AI coding tool. Use `--model` to override the default model (passed as `-m` to opencode or `--model` to Claude Code).
 
 Ralph will:
 1. Create a feature branch (from PRD `branchName`)
@@ -133,14 +167,14 @@ Ralph will:
 
 | File | Purpose |
 |------|---------|
-| `ralph.sh` | The bash loop that spawns fresh AI instances (supports `--tool amp` or `--tool claude`) |
-| `prompt.md` | Prompt template for Amp |
+| `ralph.sh` | The bash loop that spawns fresh AI instances (supports `--tool`, `--model`) |
+| `AGENTS.md` | Prompt template for opencode |
 | `CLAUDE.md` | Prompt template for Claude Code |
 | `prd.json` | User stories with `passes` status (the task list) |
 | `prd.json.example` | Example PRD format for reference |
 | `progress.txt` | Append-only learnings for future iterations |
-| `skills/prd/` | Skill for generating PRDs (works with Amp and Claude Code) |
-| `skills/ralph/` | Skill for converting PRDs to JSON (works with Amp and Claude Code) |
+| `skills/prd/` | Skill for generating PRDs (works with Opencode and Claude Code) |
+| `skills/ralph/` | Skill for converting PRDs to JSON (works with Opencode and Claude Code) |
 | `.claude-plugin/` | Plugin manifest for Claude Code marketplace discovery |
 | `flowchart/` | Interactive visualization of how Ralph works |
 
@@ -162,7 +196,7 @@ npm run dev
 
 ### Each Iteration = Fresh Context
 
-Each iteration spawns a **new AI instance** (Amp or Claude Code) with clean context. The only memory between iterations is:
+Each iteration spawns a **new AI instance** (opencode or Claude Code) with clean context. The only memory between iterations is:
 - Git history (commits from previous iterations)
 - `progress.txt` (learnings and context)
 - `prd.json` (which stories are done)
@@ -223,7 +257,7 @@ git log --oneline -10
 
 ## Customizing the Prompt
 
-After copying `prompt.md` (for Amp) or `CLAUDE.md` (for Claude Code) to your project, customize it for your project:
+After copying `AGENTS.md` (for opencode) or `CLAUDE.md` (for Claude Code) to your project, customize it for your project:
 - Add project-specific quality check commands
 - Include codebase conventions
 - Add common gotchas for your stack
@@ -235,5 +269,5 @@ Ralph automatically archives previous runs when you start a new feature (differe
 ## References
 
 - [Geoffrey Huntley's Ralph article](https://ghuntley.com/ralph/)
-- [Amp documentation](https://ampcode.com/manual)
+- [opencode documentation](https://opencode.ai)
 - [Claude Code documentation](https://docs.anthropic.com/en/docs/claude-code)
