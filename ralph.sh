@@ -1,11 +1,12 @@
 #!/bin/bash
 # Ralph Wiggum - Long-running AI agent loop
-# Usage: ./ralph.sh [--tool claude|opencode] [max_iterations]
+# Usage: ./ralph.sh [--tool claude|opencode] [--model MODEL] [max_iterations]
 
 set -e
 
 # Parse arguments
 TOOL="opencode"  # Default to opencode
+MODEL=""          # Optional model override
 MAX_ITERATIONS=10
 
 while [[ $# -gt 0 ]]; do
@@ -16,6 +17,14 @@ while [[ $# -gt 0 ]]; do
       ;;
     --tool=*)
       TOOL="${1#*=}"
+      shift
+      ;;
+    --model)
+      MODEL="$2"
+      shift 2
+      ;;
+    --model=*)
+      MODEL="${1#*=}"
       shift
       ;;
     *)
@@ -43,20 +52,20 @@ LAST_BRANCH_FILE="$SCRIPT_DIR/.last-branch"
 if [ -f "$PRD_FILE" ] && [ -f "$LAST_BRANCH_FILE" ]; then
   CURRENT_BRANCH=$(jq -r '.branchName // empty' "$PRD_FILE" 2>/dev/null || echo "")
   LAST_BRANCH=$(cat "$LAST_BRANCH_FILE" 2>/dev/null || echo "")
-  
+
   if [ -n "$CURRENT_BRANCH" ] && [ -n "$LAST_BRANCH" ] && [ "$CURRENT_BRANCH" != "$LAST_BRANCH" ]; then
     # Archive the previous run
     DATE=$(date +%Y-%m-%d)
     # Strip "ralph/" prefix from branch name for folder
     FOLDER_NAME=$(echo "$LAST_BRANCH" | sed 's|^ralph/||')
     ARCHIVE_FOLDER="$ARCHIVE_DIR/$DATE-$FOLDER_NAME"
-    
+
     echo "Archiving previous run: $LAST_BRANCH"
     mkdir -p "$ARCHIVE_FOLDER"
     [ -f "$PRD_FILE" ] && cp "$PRD_FILE" "$ARCHIVE_FOLDER/"
     [ -f "$PROGRESS_FILE" ] && cp "$PROGRESS_FILE" "$ARCHIVE_FOLDER/"
     echo "   Archived to: $ARCHIVE_FOLDER"
-    
+
     # Reset progress file for new run
     echo "# Ralph Progress Log" > "$PROGRESS_FILE"
     echo "Started: $(date)" >> "$PROGRESS_FILE"
@@ -79,7 +88,12 @@ if [ ! -f "$PROGRESS_FILE" ]; then
   echo "---" >> "$PROGRESS_FILE"
 fi
 
-echo "Starting Ralph - Tool: $TOOL - Max iterations: $MAX_ITERATIONS"
+echo "Starting Ralph"
+echo "  Tool:            $TOOL"
+if [[ -n "$MODEL" ]]; then
+  echo "  Model:           $MODEL"
+fi
+echo "  Max iterations:  $MAX_ITERATIONS"
 
 for i in $(seq 1 $MAX_ITERATIONS); do
   echo ""
@@ -89,12 +103,20 @@ for i in $(seq 1 $MAX_ITERATIONS); do
 
   # Run the selected tool with the ralph prompt
   if [[ "$TOOL" == "opencode" ]]; then
-    OUTPUT=$(OPENCODE_PERMISSION='{"*":"allow"}' opencode run -f "$SCRIPT_DIR/AGENTS.md" "Complete the next user story" 2>&1 | tee /dev/stderr) || true
+    MODEL_FLAG=""
+    if [[ -n "$MODEL" ]]; then
+      MODEL_FLAG="-m $MODEL"
+    fi
+    OUTPUT=$(OPENCODE_PERMISSION='{"*":"allow"}' opencode run $MODEL_FLAG -f "$SCRIPT_DIR/AGENTS.md" -- "Complete the next user story" 2>&1) || true
   else
     # Claude Code: use --dangerously-skip-permissions for autonomous operation, --print for output
-    OUTPUT=$(claude --dangerously-skip-permissions --print < "$SCRIPT_DIR/CLAUDE.md" 2>&1 | tee /dev/stderr) || true
+    MODEL_FLAG=""
+    if [[ -n "$MODEL" ]]; then
+      MODEL_FLAG="--model $MODEL"
+    fi
+    OUTPUT=$(claude --dangerously-skip-permissions $MODEL_FLAG --print < "$SCRIPT_DIR/CLAUDE.md" 2>&1) || true
   fi
-  
+
   # Check for completion signal
   if echo "$OUTPUT" | grep -q "<promise>COMPLETE</promise>"; then
     echo ""
@@ -102,7 +124,7 @@ for i in $(seq 1 $MAX_ITERATIONS); do
     echo "Completed at iteration $i of $MAX_ITERATIONS"
     exit 0
   fi
-  
+
   echo "Iteration $i complete. Continuing..."
   sleep 2
 done

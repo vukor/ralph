@@ -98,9 +98,16 @@ This creates `prd.json` with user stories structured for autonomous execution.
 
 # Using Claude Code
 ./scripts/ralph/ralph.sh --tool claude [max_iterations]
+
+# With a specific model (opencode uses provider/model format)
+./scripts/ralph/ralph.sh --model "llm-router/claude-sonnet-4-6" [max_iterations]
+./scripts/ralph/ralph.sh --model "llm-router/claude-opus-4-6" [max_iterations]
+
+# With a specific model (Claude Code uses model name)
+./scripts/ralph/ralph.sh --tool claude --model "claude-sonnet-4-6" [max_iterations]
 ```
 
-Default is 10 iterations. Use `--tool opencode` or `--tool claude` to select your AI coding tool.
+Default is 10 iterations. Use `--tool opencode` or `--tool claude` to select your AI coding tool. Use `--model` to override the default model (passed as `-m` to opencode or `--model` to Claude Code).
 
 Ralph will:
 1. Create a feature branch (from PRD `branchName`)
@@ -116,7 +123,7 @@ Ralph will:
 
 | File | Purpose |
 |------|---------|
-| `ralph.sh` | The bash loop that spawns fresh AI instances (supports `--tool opencode` or `--tool claude`) |
+| `ralph.sh` | The bash loop that spawns fresh AI instances (supports `--tool`, `--model`) |
 | `AGENTS.md` | Prompt template for opencode |
 | `CLAUDE.md` | Prompt template for Claude Code |
 | `prd.json` | User stories with `passes` status (the task list) |
