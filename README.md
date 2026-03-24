@@ -20,44 +20,13 @@ Based on [Geoffrey Huntley's Ralph pattern](https://ghuntley.com/ralph/).
 
 ## Setup
 
-### Option 1: Copy to your project
-
-Copy the ralph files into your project:
-
-```bash
-# From your project root
-mkdir -p scripts/ralph
-cp /path/to/ralph/ralph.sh scripts/ralph/
-
-# Copy the prompt template for your AI tool of choice:
-cp /path/to/ralph/AGENTS.md scripts/ralph/AGENTS.md    # For opencode
-# OR
-cp /path/to/ralph/CLAUDE.md scripts/ralph/CLAUDE.md    # For Claude Code
-
-chmod +x scripts/ralph/ralph.sh
-```
-
-### Option 2: Install skills globally
+### 1. Install skills
 
 Copy the skills to your Claude config for use across all projects:
 
 ```bash
 cp -r skills/prd ~/.claude/skills/
 cp -r skills/ralph ~/.claude/skills/
-```
-
-### Option 3: Use as Claude Code Marketplace
-
-Add the Ralph marketplace to Claude Code:
-
-```bash
-/plugin marketplace add snarktank/ralph
-```
-
-Then install the skills:
-
-```bash
-/plugin install ralph-skills@ralph-marketplace
 ```
 
 Available skills after installation:
@@ -67,6 +36,35 @@ Available skills after installation:
 Skills are automatically invoked when you ask Claude to:
 - "create a prd", "write prd for", "plan this feature"
 - "convert this prd", "turn into ralph format", "create prd.json"
+
+### 2. Install script and prompt
+Symlink ralph into a shared scripts directory so it's available from any project:
+
+```bash
+# Create the scripts directory
+mkdir -p -m 700 ~/_scripts
+
+# Symlink ralph files
+ln -s $(pwd)/CLAUDE.md ~/_scripts/CLAUDE.md
+ln -s $(pwd)/AGENTS.md ~/_scripts/AGENTS.md
+ln -s $(pwd)/ralph.sh ~/_scripts/ralph.sh
+```
+
+Then add `~/_scripts` to your PATH.
+
+**zsh / bash** - add to `~/.zshrc` or `~/.bashrc`:
+
+```bash
+export PATH="$PATH:$HOME/_scripts/"
+```
+
+**fish** - add to `~/.config/fish/config.fish`:
+
+```fish
+set -gx PATH $HOME/_scripts $PATH
+```
+
+After reloading your shell you can run `ralph.sh` from any project directory.
 
 ## Workflow
 
@@ -94,17 +92,17 @@ This creates `prd.json` with user stories structured for autonomous execution.
 
 ```bash
 # Using opencode (default)
-./scripts/ralph/ralph.sh [max_iterations]
+ralph.sh [max_iterations]
 
 # Using Claude Code
-./scripts/ralph/ralph.sh --tool claude [max_iterations]
+ralph.sh --tool claude [max_iterations]
 
 # With a specific model (opencode uses provider/model format)
-./scripts/ralph/ralph.sh --model "llm-router/claude-sonnet-4-6" [max_iterations]
-./scripts/ralph/ralph.sh --model "llm-router/claude-opus-4-6" [max_iterations]
+ralph.sh --model "llm-router/claude-sonnet-4-6" [max_iterations]
+ralph.sh --model "llm-router/claude-opus-4-6" [max_iterations]
 
 # With a specific model (Claude Code uses model name)
-./scripts/ralph/ralph.sh --tool claude --model "claude-sonnet-4-6" [max_iterations]
+ralph.sh --tool claude --model "claude-sonnet-4-6" [max_iterations]
 ```
 
 Default is 10 iterations. Use `--tool opencode` or `--tool claude` to select your AI coding tool. Use `--model` to override the default model (passed as `-m` to opencode or `--model` to Claude Code).
