@@ -20,14 +20,19 @@ Based on [Geoffrey Huntley's Ralph pattern](https://ghuntley.com/ralph/).
 
 ## Setup
 
-### 1. Install skills
+### 1. Install skills, script, and prompts
 
-Copy the skills to your Claude config for use across all projects:
+From the ralph repo root, run:
 
 ```bash
-cp -r skills/prd ~/.claude/skills/
-cp -r skills/ralph ~/.claude/skills/
+make install
 ```
+
+This will:
+- Copy skills (`prd`, `ralph`) to `~/.claude/skills/`
+- Copy `ralph.sh`, `AGENTS.md`, `CLAUDE.md` to `~/_scripts/`
+
+To uninstall, run `make uninstall`. Run `make help` to see all available targets.
 
 Available skills after installation:
 - `/prd` - Generate Product Requirements Documents
@@ -37,21 +42,7 @@ Skills are automatically invoked when you ask Claude to:
 - "create a prd", "write prd for", "plan this feature"
 - "convert this prd", "turn into ralph format", "create prd.json"
 
-### 2. Install script and prompt
-
-Symlink ralph into a shared scripts directory so it's available from any project:
-
-```bash
-# Create the scripts directory
-mkdir -p -m 700 ~/_scripts
-
-# Symlink ralph files (run from the ralph repo root)
-ln -s $(pwd)/CLAUDE.md ~/_scripts/CLAUDE.md
-ln -s $(pwd)/AGENTS.md ~/_scripts/AGENTS.md
-ln -s $(pwd)/ralph.sh ~/_scripts/ralph.sh
-```
-
-### 3. Add `~/_scripts` to your PATH
+### 2. Add `~/_scripts` to your PATH
 
 Choose the section that matches your shell. If you're unsure, run `echo $SHELL` to check.
 
