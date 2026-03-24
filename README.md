@@ -216,15 +216,6 @@ Too big (split these):
 - "Add authentication"
 - "Refactor the API"
 
-### AGENTS.md Updates Are Critical
-
-After each iteration, Ralph updates the relevant `AGENTS.md` files with learnings. This is key because AI coding tools automatically read these files, so future iterations (and future human developers) benefit from discovered patterns, gotchas, and conventions.
-
-Examples of what to add to AGENTS.md:
-- Patterns discovered ("this codebase uses X for Y")
-- Gotchas ("do not forget to update Z when changing W")
-- Useful context ("the settings panel is in component X")
-
 ### Feedback Loops
 
 Ralph only works if there are feedback loops:
