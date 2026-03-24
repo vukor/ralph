@@ -107,7 +107,7 @@ for i in $(seq 1 $MAX_ITERATIONS); do
     if [[ -n "$MODEL" ]]; then
       MODEL_FLAG="-m $MODEL"
     fi
-    OUTPUT=$(OPENCODE_PERMISSION='{"*":"allow"}' opencode run $MODEL_FLAG -f "$SCRIPT_DIR/AGENTS.md" -- "Complete the next user story" 2>&1) || true
+    OUTPUT=$(OPENCODE_PERMISSION='{"*":"allow"}' opencode run $MODEL_FLAG < "$SCRIPT_DIR/AGENTS.md" 2>&1) || true
   else
     # Claude Code: use --dangerously-skip-permissions for autonomous operation, --print for output
     MODEL_FLAG=""
