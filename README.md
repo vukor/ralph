@@ -135,8 +135,8 @@ ralph.sh [max_iterations]
 ralph.sh --tool claude [max_iterations]
 
 # With a specific model (opencode uses provider/model format)
-ralph.sh --model "llm-router/claude-sonnet-4-6" [max_iterations]
-ralph.sh --model "llm-router/claude-opus-4-6" [max_iterations]
+ralph.sh --model "litellm/claude-sonnet-4-6" [max_iterations]
+ralph.sh --model "litellm/claude-opus-4-6" [max_iterations]
 
 # With a specific model (Claude Code uses model name)
 ralph.sh --tool claude --model "claude-sonnet-4-6" [max_iterations]

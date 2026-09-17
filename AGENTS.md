@@ -81,7 +81,7 @@ Run Ralph from the project root:
 ./ralph.sh --tool claude [max_iterations]
 
 # With a specific model
-./ralph.sh --model "llm-router/claude-sonnet-4-6" [max_iterations]
+./ralph.sh --model "litellm/claude-sonnet-4-6" [max_iterations]
 ./ralph.sh --tool claude --model "claude-sonnet-4-6" [max_iterations]
 ```
 
