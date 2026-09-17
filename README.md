@@ -144,6 +144,24 @@ ralph.sh --tool claude --model "claude-sonnet-4-6" [max_iterations]
 
 Default is 10 iterations. Use `--tool opencode` or `--tool claude` to select your AI coding tool. Use `--model` to override the default model (passed as `-m` to opencode or `--model` to Claude Code).
 
+**Always pass `max_iterations` ≥ number of open stories** (add a small buffer). Ralph will warn you at startup if `max_iterations` is lower than the open story count.
+
+### Environment variables
+
+| Variable | Default | Description |
+|---|---|---|
+| `RALPH_ITER_TIMEOUT` | `1800` | Per-iteration timeout in seconds. The iteration is killed and the loop continues if the AI tool hangs or the provider stops responding. |
+| `RALPH_PRD` | `$PWD/prd.json` | Path to `prd.json`. Defaults to the current working directory so you can keep it in your project repo alongside the code. |
+| `RALPH_PROGRESS` | `$PWD/progress.txt` | Path to `progress.txt`. Same default. |
+
+```bash
+# 45-minute timeout, custom prd location
+RALPH_ITER_TIMEOUT=2700 ralph.sh 15
+
+# Explicit prd path
+RALPH_PRD=/path/to/my/prd.json ralph.sh 10
+```
+
 Ralph will:
 1. Create a feature branch (from PRD `branchName`)
 2. Pick the highest priority story where `passes: false`
@@ -152,7 +170,10 @@ Ralph will:
 5. Commit if checks pass
 6. Update `prd.json` to mark story as `passes: true`
 7. Append learnings to `progress.txt`
-8. Repeat until all stories pass or max iterations reached
+8. **STOP the iteration** — a fresh instance starts for the next story
+9. Repeat until all stories pass or max iterations reached
+
+Completion is detected two ways: the agent prints `<promise>COMPLETE</promise>`, **or** `prd.json` has zero stories with `passes: false` (catches the case where the agent completed work but the response was cut off or timed out).
 
 ## Key Files
 
