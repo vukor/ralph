@@ -11,6 +11,35 @@ MAX_ITERATIONS=10
 
 while [[ $# -gt 0 ]]; do
   case $1 in
+    -h|--help)
+      cat <<'EOF'
+Usage: ./ralph.sh [OPTIONS] [max_iterations]
+
+Ralph Wiggum - Long-running AI agent loop that works through a prd.json one
+story at a time, committing changes and updating progress.txt after each story.
+
+Arguments:
+  max_iterations    Maximum number of agent iterations to run (default: 10)
+
+Options:
+  --tool TOOL       AI tool to use: opencode (default) or claude
+  --model MODEL     Model override (e.g. litellm/claude-sonnet-4-6)
+  -h, --help        Show this help message and exit
+
+Environment variables:
+  RALPH_PRD         Path to prd.json (default: ./prd.json)
+  RALPH_PROGRESS    Path to progress.txt (default: ./progress.txt)
+  RALPH_ITER_TIMEOUT  Per-iteration timeout in seconds (default: 1800)
+
+Examples:
+  ./ralph.sh                                         # opencode, 10 iterations
+  ./ralph.sh 20                                      # opencode, 20 iterations
+  ./ralph.sh --tool claude                           # Claude Code, 10 iterations
+  ./ralph.sh --tool claude --model claude-sonnet-4-6 5
+  ./ralph.sh --model litellm/claude-sonnet-4-6 15
+EOF
+      exit 0
+      ;;
     --tool)
       TOOL="$2"
       shift 2
