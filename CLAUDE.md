@@ -108,7 +108,7 @@ At the **start** of each iteration, check if ALL stories already have `passes: t
 If ALL stories are already complete, reply with:
 <promise>COMPLETE</promise>
 
-Otherwise pick the next story, implement it, and **STOP** after step 11 above.
+Otherwise pick the next story, implement it, and **STOP** after updating `prd.json` and `progress.txt`.
 Do not keep working through multiple stories in one iteration.
 
 ## Commands
@@ -129,7 +129,7 @@ Run Ralph from the project root:
 
 ## Important
 
-- Work on **ONE** story per iteration — stop immediately after step 11
+- Work on **ONE** story per iteration — stop immediately after updating `prd.json` and `progress.txt`
 - Commit frequently
 - Keep CI green
 - Read the Codebase Patterns section in progress.txt before starting
