@@ -6,7 +6,7 @@ set -e
 
 # Parse arguments
 TOOL="opencode"  # Default to opencode
-MODEL=""          # Optional model override
+MODEL="litellm/claude-sonnet-4-6"  # Default model
 MAX_ITERATIONS=10
 
 while [[ $# -gt 0 ]]; do
@@ -32,11 +32,11 @@ Environment variables:
   RALPH_ITER_TIMEOUT  Per-iteration timeout in seconds (default: 1800)
 
 Examples:
-  ./ralph.sh                                         # opencode, 10 iterations
+  ./ralph.sh                                         # opencode, 10 iterations, default model
   ./ralph.sh 20                                      # opencode, 20 iterations
   ./ralph.sh --tool claude                           # Claude Code, 10 iterations
   ./ralph.sh --tool claude --model claude-sonnet-4-6 5
-  ./ralph.sh --model litellm/claude-sonnet-4-6 15
+  ./ralph.sh --model litellm/claude-opus-4-5 15
 EOF
       exit 0
       ;;
@@ -71,6 +71,7 @@ if [[ "$TOOL" != "opencode" && "$TOOL" != "claude" ]]; then
   echo "Error: Invalid tool '$TOOL'. Must be 'opencode' or 'claude'."
   exit 1
 fi
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # prd.json / progress.txt live in the directory ralph.sh is invoked from (CWD),
 # not alongside ralph.sh itself. Override with RALPH_PRD / RALPH_PROGRESS if needed.
