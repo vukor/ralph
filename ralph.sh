@@ -155,7 +155,7 @@ for i in $(seq 1 $MAX_ITERATIONS); do
     if [[ -n "$MODEL" ]]; then
       MODEL_FLAG="-m $MODEL"
     fi
-    OUTPUT=$(OPENCODE_PERMISSION='{"*":"allow"}' perl -e 'alarm shift; exec @ARGV' "$ITER_TIMEOUT" opencode run $MODEL_FLAG < "$SCRIPT_DIR/AGENTS.md" 2>&1) || true
+    OUTPUT=$(OPENCODE_PERMISSION='{"*":"allow"}' perl -e 'alarm shift; exec @ARGV' "$ITER_TIMEOUT" opencode run --dir "$PWD" $MODEL_FLAG < "$SCRIPT_DIR/AGENTS.md" 2>&1) || true
   else
     # Claude Code: use --dangerously-skip-permissions for autonomous operation, --print for output
     MODEL_FLAG=""
